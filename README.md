@@ -1,7 +1,8 @@
 # EASY STACK DB
 
 ## Introduction
-This stack provides a flexible and modular framework for managing Docker containers. It supports a variety of services, including backend applications in Java or PHP, frontends, and complete containerized solutions.
+Sometimes, a specific database is needed to test a connection. This stack is designed to simplify that process and provide inspiration on how to accomplish it.
+
 
 ### Key Features
 
