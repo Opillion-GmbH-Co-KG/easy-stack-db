@@ -1,0 +1,5 @@
+POSTGRES := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it postgres
+POSTGRES_EXECUTE := $(POSTGRES) bash
+
+postgres-console:
+	$(OUTPUT)$(POSTGRES_EXECUTE)

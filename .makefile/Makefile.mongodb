@@ -1,0 +1,5 @@
+MONGODB := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it mongodb
+MONGODB_EXECUTE := $(MONGODB) bash
+
+mongodb-console:
+	$(OUTPUT)$(MONGODB_EXECUTE)

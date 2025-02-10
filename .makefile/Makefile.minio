@@ -1,0 +1,5 @@
+MINIO := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it minio
+MINIO_EXECUTE := $(MINIO) bash
+
+minio-console:
+	$(OUTPUT)$(MINIO_EXECUTE)

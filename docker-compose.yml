@@ -1,0 +1,365 @@
+services:
+
+  mysql:
+    hostname: mysql
+    container_name: mysql
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: mysql.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_EXTERNAL_PORT}:${MYSQL_INTERNAL_PORT}" # "33069:3305"
+    command: ["/etc/mysql/entrypoint.sh"]
+    volumes:
+      #- mysql-data:/var/lib/mysql
+      - ${MYSQL_DATA_PATH:-mysql-data}:/var/lib/mysql
+    environment:
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_TEST_NAME: ${DATABASE_TEST_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_TCP_PORT: ${MYSQL_TCP_PORT}
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -u$DATABASE_USER -p$DATABASE_PASSWORD $DATABASE_NAME -e 'select 1'"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+  maria:
+    hostname: maria
+    container_name: maria
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: maria.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${MARIA_EXTERNAL_PORT}:${MARIA_INTERNAL_PORT}"  # "3306:3306"
+    stop_grace_period: 5s
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: >
+      --init-file /etc/mariadb/init.sql && \
+      --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED \
+      --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci \
+      --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    environment:
+      MARIADB_AUTO_UPGRADE: ${MARIADB_AUTO_UPGRADE}
+      MARIADB_INITDB_SKIP_TZINFO: ${MARIADB_INITDB_SKIP_TZINFO}
+      MARIADB_TCP_PORT: ${MARIADB_TCP_PORT}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${DATABASE_MARIA_USER}
+      MARIADB_PASSWORD: ${DATABASE_MARIA_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DATABASE_MARIA_PASSWORD}
+    volumes:
+      #- ./.docker/dev/maria/database:/var/lib/mysql
+      - ${MARIA_DATA_PATH:-maria-data}:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+
+  redis:
+    hostname: redis
+    container_name: redis
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: redis.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+    restart: unless-stopped
+    expose:
+      - "${REDIS_INTERNAL_PORT}" #"6379"
+      - "${REDIS_INTERNAL_TWO_PORT}" #"9121"
+    volumes:
+      #- redis-data:/data
+      - ${REDIS_DATA_PATH:-redis-data}:/data
+    command: /bin/sh -cx "echo 'requirepass $REDIS_PASSWORD' | redis-server /usr/local/etc/redis/redis.conf --requirepass root"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "-c", "ping"]
+      interval: 16s
+      timeout: 10s
+      retries: 3
+      start_period: 11s
+    networks:
+      - default
+
+  mongodb:
+    hostname: mongodb
+    container_name: mongodb
+    restart: unless-stopped
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: mongodb.Dockerfile
+      args:
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    expose:
+      - "${MONGO_DB_INTERNAL_PORT}" # "27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - ${MONGODB_DATA_PATH:-mongodb-data}:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - default
+
+
+  elasticsearch:
+    hostname: elasticsearch
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: elasticsearch.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${ELASTIC_EXTERNAL_PORT}:${ELASTIC_INTERNAL_PORT}" # "9200:9200"
+    environment:
+      CLI_JAVA_OPTS: -Xms2g -Xmx2g
+      bootstrap.memory_lock: true
+      discovery.type: single-node
+      xpack.security.enabled: false
+      xpack.security.enrollment.enabled: false
+      cluster.name: docker-cluster
+      cluster.routing.allocation.disk.threshold_enabled: false
+      http.host: 0.0.0.0
+      transport.host: localhost
+      network.host: 0.0.0.0
+      ES_JAVA_OPTS: -XX:UseAVX=2 -Dlog4j2.formatMsgNoLookups=true -Xms1g -Xmx1g
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+    volumes:
+      #- elastic-data:/usr/share/elasticsearch/data
+      - ${ELASTIC_DATA_PATH:-elastic-data}:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://elasticsearch:${ELASTIC_INTERNAL_PORT}/_cluster/health | grep -vq '\"status\":\"red\"'"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+
+  minio:
+    hostname: minio
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: minio.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${MINIO_EXTERNAL_PORT_ONE}:${MINIO_INTERNAL_PORT_ONE}" # "9006:9006"
+      - "${MINIO_EXTERNAL_PORT_TWO}:${MINIO_INTERNAL_PORT_TWO}" # "9007:9007"
+    volumes:
+      #- minio-data:/bitnami/minio/data
+      - ${MINIO_DATA_PATH:-minio-data}:/bitnami/minio/data
+      #- ./.docker/dev/minio/data:/bitnami/minio/data
+    command: ["/bin/sh", "-c", "/usr/bin/create-access-key.sh & /opt/bitnami/scripts/minio/run.sh"]
+    environment:
+      MINIO_SERVER_URL: ${MINIO_HOST_URL}
+      MINIO_HOST_URL: ${MINIO_HOST_URL}
+      MINIO_SERVER_URL_ONE: ${MINIO_SERVER_URL_ONE}
+      MINIO_SERVER_URL_TWO: ${MINIO_SERVER_URL_TWO}
+      BITNAMI_DEBUG: true
+      MINIO_API_PORT_NUMBER: ${MINIO_INTERNAL_PORT_ONE}
+      MINIO_CONSOLE_PORT_NUMBER: ${MINIO_INTERNAL_PORT_TWO}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_DATA_DIR: ${MINIO_DATA_DIR}
+      MINIO_DEFAULT_BUCKETS: ${MINIO_DEFAULT_BUCKETS}
+      MINIO_SERVER_ACCESS_KEY: ${MINIO_SERVER_ACCESS_KEY}
+      MINIO_SERVER_SECRET_KEY: ${MINIO_SERVER_SECRET_KEY}
+      MINIO_PROMETHEUS_AUTH_TYPE: public
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f ${MINIO_SERVER_URL_ONE}/minio/health/live || exit 1"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+
+  postgres:
+    hostname: postgres
+    container_name: postgres
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: postgres.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_INTERNAL_PORT}" # "5432:5432"
+    volumes:
+      - ./.docker/dev/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ${POSTGRES_DATA_PATH:-postgres-data}:/var/lib/postgresql/data
+    environment:
+      PGDATA: ${PGDATA}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER_ROOT_PASSWORD: ${POSTGRES_USER_ROOT_PASSWORD}
+      POSTGRES_USER_PASSWORD: ${POSTGRES_USER_PASSWORD}
+      SERVICE_NAME: ${SERVICE_NAME}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+
+  pgadmin:
+    hostname: pgadmin
+    container_name: pgadmin
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: postgres.admin.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${PGADMIN_EXTERNAL_PORT}:${PGADMIN_INTERNAL_PORT}" # "8081:8081"
+    volumes:
+      - ${PGADMIN_DATA_PATH:-pgadmin-data}:/var/lib/postgresql/data
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_ADDRESS: ${PGADMIN_LISTEN_ADDRESS}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://pgadmin:${PGADMIN_INTERNAL_PORT}/misc/ping"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+    networks:
+      - default
+
+
+  mssql:
+    hostname: mssql
+    container_name: mssql
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: mssql.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${MSSQL_EXTERNAL_PORT}:${MSSQL_INTERNAL_PORT}" # "1433:1433"
+    environment:
+      ACCEPT_EULA: ${ACCEPT_EULA}
+      SA_PASSWORD: ${SA_PASSWORD}
+    volumes:
+      - ./.docker/dev/mssql/scripts:/usr/scripts
+      - ${MSSQL_DATA_PATH:-mssql-data}:/var/opt/mssql
+    command: ["bash", "/usr/sbin/configure-db.sh"]
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep sqlservr | grep -v grep"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - default
+
+
+  oracle:
+    hostname: oracle
+    container_name: oracle
+    build:
+      context: .docker/${DOCKER_IMAGE_SOURCE}/
+      dockerfile: oracle.Dockerfile
+      args:
+        DOCKER_REPO: ${DOCKER_REPO}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${ORACLE_EXTERNAL_PORT}:${ORACLE_INTERNAL_PORT}"
+    environment:
+      HOSTNAME: oracle
+      ORACLE_PASSWORD: ${ORACLE_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_USER_PASSWORD: ${APP_USER_PASSWORD}
+    volumes:
+      - ./.docker/dev/oracle:/container-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - default
+
+volumes:
+  mysql-data:
+  maria-data:
+  redis-data:
+  elastic-data:
+  mssql-data:
+  postgres-data:
+  minio-data:
+  pgadmin-data:
+  mongodb-data:
+  ferretdb-data:
+
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK}
+    driver: bridge
+
+
+  

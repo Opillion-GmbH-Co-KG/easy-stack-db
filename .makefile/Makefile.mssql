@@ -1,0 +1,5 @@
+MSSQL := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it mssql
+MSSQL_EXECUTE := $(MSSQL) bash
+
+mssql-console:
+	$(OUTPUT)$(MSSQL_EXECUTE)

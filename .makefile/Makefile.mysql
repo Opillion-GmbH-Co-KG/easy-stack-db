@@ -1,0 +1,5 @@
+MYSQL := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it mysql
+MYSQL_EXECUTE := $(MYSQL) bash
+
+mysql-console:
+	$(OUTPUT)$(MYSQL_EXECUTE)

@@ -1,0 +1,5 @@
+REDIS := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it redis
+REDIS_EXECUTE := $(REDIS) bash
+
+redis-console:
+	$(OUTPUT)$(REDIS_EXECUTE)

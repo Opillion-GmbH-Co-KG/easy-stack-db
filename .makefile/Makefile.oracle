@@ -1,0 +1,5 @@
+ORACLE := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it oracle
+ORACLE_EXECUTE := $(ORACLE) bash
+
+oracle-console:
+	$(OUTPUT)$(ORACLE_EXECUTE)

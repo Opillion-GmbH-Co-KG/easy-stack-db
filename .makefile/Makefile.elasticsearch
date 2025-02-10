@@ -1,0 +1,5 @@
+ELASTIC := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it elasticsearch
+ELASTIC_EXECUTE := $(ELASTIC) bash
+
+elasticsearch-console:
+	$(OUTPUT)$(ELASTIC_EXECUTE)

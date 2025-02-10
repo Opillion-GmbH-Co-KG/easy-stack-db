@@ -1,0 +1,5 @@
+MARIA := $(DOCKER_COMPOSE) exec -e OUTPUT=$(OUTPUT) -it maria
+MARIA_EXECUTE := $(MARIA) bash
+
+maria-console:
+	$(OUTPUT)$(MARIA_EXECUTE)
