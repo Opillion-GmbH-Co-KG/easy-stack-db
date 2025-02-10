@@ -29,7 +29,7 @@ This application provides a flexible and modular framework for managing Docker c
 | **Oracle**        | Proprietary (Oracle EULA)              | [Oracle EULA](https://www.oracle.com/downloads/licenses/)               |
 
 
-## Installation and Starting the Application
+## Installation and Starting the Stack
 ### Prerequisites
 - Docker and Docker Compose must be installed on the system.
 
