@@ -135,6 +135,7 @@ services:
 
   elasticsearch:
     hostname: elasticsearch
+    container_name: elasticsearch
     build:
       context: .docker/${DOCKER_IMAGE_SOURCE}/
       dockerfile: elasticsearch.Dockerfile
@@ -172,6 +173,7 @@ services:
 
   minio:
     hostname: minio
+    container_name: minio
     build:
       context: .docker/${DOCKER_IMAGE_SOURCE}/
       dockerfile: minio.Dockerfile
