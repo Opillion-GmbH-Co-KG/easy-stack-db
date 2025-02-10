@@ -10,8 +10,21 @@ This application provides a flexible and modular framework for managing Docker c
 - Compatible with container registries such as Docker Hub and GitHub Container Registry
 - Scalable and easily extendable for different service configurations
 - This stack allows developers to efficiently manage their containerized environments and streamline deployment workflows. Future updates will introduce pre-configured Easy-Stacks to further simplify the setup and usage.
-[](url)
-#### Caution! Caution! This stack is intended for development use only and is not configured for production. Please make sure to change all passwords immediately. You can override the values from the .env.dist file with a custom .env file. For production use, please refer to the "Easy-Stack-Prod" stack - comming soon.
+
+#### Caution! Caution! This stack is intended for development use only and is not configured for production. For production use, please refer to the "Easy-Stack-Prod" stack - comming soon.
+
+## Important Notice
+
+We strongly recommend changing all passwords in the `.env.dist` file. These are purely test data and should not be used even in development mode.
+
+### How to Update Environment Variables
+
+1. Create a `.env` file next to `.env.dist`:
+   ```sh
+   cp .env.dist .env
+   ```
+2. Open the `.env` file and update the relevant values.
+3. The `.env` file will be automatically loaded if it exists and will override the corresponding environment variables.
 
 # License Information for Used Containers
 
