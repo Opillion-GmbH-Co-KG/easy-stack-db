@@ -16,7 +16,6 @@ services:
       - "${MYSQL_EXTERNAL_PORT}:${MYSQL_INTERNAL_PORT}" # "33069:3305"
     command: ["/etc/mysql/entrypoint.sh"]
     volumes:
-      #- mysql-data:/var/lib/mysql
       - ${MYSQL_DATA_PATH:-mysql-data}:/var/lib/mysql
     environment:
       DATABASE_USER: ${DATABASE_USER}
@@ -67,7 +66,6 @@ services:
       MARIADB_PASSWORD: ${DATABASE_MARIA_PASSWORD}
       MARIADB_ROOT_PASSWORD: ${DATABASE_MARIA_PASSWORD}
     volumes:
-      #- ./.docker/dev/maria/database:/var/lib/mysql
       - ${MARIA_DATA_PATH:-maria-data}:/var/lib/mysql
     healthcheck:
       test: [ "CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
@@ -97,7 +95,6 @@ services:
       - "${REDIS_INTERNAL_PORT}" #"6379"
       - "${REDIS_INTERNAL_TWO_PORT}" #"9121"
     volumes:
-      #- redis-data:/data
       - ${REDIS_DATA_PATH:-redis-data}:/data
     command: /bin/sh -cx "echo 'requirepass $REDIS_PASSWORD' | redis-server /usr/local/etc/redis/redis.conf --requirepass root"
     healthcheck:
@@ -163,7 +160,6 @@ services:
       ES_JAVA_OPTS: -XX:UseAVX=2 -Dlog4j2.formatMsgNoLookups=true -Xms1g -Xmx1g
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
     volumes:
-      #- elastic-data:/usr/share/elasticsearch/data
       - ${ELASTIC_DATA_PATH:-elastic-data}:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -s http://elasticsearch:${ELASTIC_INTERNAL_PORT}/_cluster/health | grep -vq '\"status\":\"red\"'"]
@@ -189,9 +185,7 @@ services:
       - "${MINIO_EXTERNAL_PORT_ONE}:${MINIO_INTERNAL_PORT_ONE}" # "9006:9006"
       - "${MINIO_EXTERNAL_PORT_TWO}:${MINIO_INTERNAL_PORT_TWO}" # "9007:9007"
     volumes:
-      #- minio-data:/bitnami/minio/data
       - ${MINIO_DATA_PATH:-minio-data}:/bitnami/minio/data
-      #- ./.docker/dev/minio/data:/bitnami/minio/data
     command: ["/bin/sh", "-c", "/usr/bin/create-access-key.sh & /opt/bitnami/scripts/minio/run.sh"]
     environment:
       MINIO_SERVER_URL: ${MINIO_HOST_URL}
