@@ -1,4 +1,5 @@
-|--------------------------------|-----------------------------------------------------------------------------|
+
+
 | Make Commands                  | Description                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------|
 | `make build`                   | Builds the current stack                                                    |
@@ -23,4 +24,4 @@
 | `make start`                   | Starts all services defined in your docker-compose file                     |
 | `make stop`                    | Stops running Docker containers                                             |
 | `make validate-docker-compose` | Validates the docker-compose.yml file                                       |
-|--------------------------------|-----------------------------------------------------------------------------|
+
