@@ -149,7 +149,7 @@ make restart
 - **Volumes:**
    - ${MSSQL_DATA_PATH:-mssql-data}:/var/opt/mssql
 
-# License Information for used containers
+## License Information
 
 | Container         | License                                | License Link                                                            |
 |-------------------|----------------------------------------|-------------------------------------------------------------------------|
