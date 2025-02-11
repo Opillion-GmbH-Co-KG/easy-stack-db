@@ -18,7 +18,7 @@ We strongly recommend changing all passwords in the `.env.dist` file. These are 
 2. Open the `.env` file and update the relevant values.
 3. The `.env` file will be automatically loaded if it exists and will override the corresponding environment variables.
 
-# License Information for Used Containers
+# License Information for used containers
 
 | Container         | License                                | License Link                                                            |
 |-------------------|----------------------------------------|-------------------------------------------------------------------------|
