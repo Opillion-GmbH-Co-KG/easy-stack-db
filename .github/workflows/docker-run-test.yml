@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test Build
 
 on:
   push:
@@ -30,3 +30,4 @@ jobs:
       - name: Build stack
         run: |
           make start
+          echo "🚀 All containers have been successfully built!"
