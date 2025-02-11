@@ -3,15 +3,6 @@
 ## Introduction
 Sometimes, a specific database is needed to test a connection. This stack is designed to simplify that process and provide inspiration on how to accomplish it.
 
-
-### Key Features
-
-- Customizable and adaptable to various development needs
-- Supports building and publishing Docker images locally or via CI/CD pipelines
-- Compatible with container registries such as Docker Hub and GitHub Container Registry
-- Scalable and easily extendable for different service configurations
-- This stack allows developers to efficiently manage their containerized environments and streamline deployment workflows. Future updates will introduce pre-configured Easy-Stacks to further simplify the setup and usage.
-
 #### Caution! Caution! This stack is intended for development use only and is not configured for production. For production use, please refer to the "Easy-Stack-Prod" stack - comming soon.
 
 ## Important Notice
