@@ -330,6 +330,7 @@ services:
       APP_USER_PASSWORD: ${APP_USER_PASSWORD}
     volumes:
       - ./.docker/dev/oracle:/container-entrypoint-initdb.d
+      - ${ORACLE_DATA_PATH:-oracle-data}:/opt/oracle/oradata
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 16s
@@ -349,6 +350,7 @@ volumes:
   minio-data:
   pgadmin-data:
   mongodb-data:
+  oracle-data:
   ferretdb-data:
 
 
