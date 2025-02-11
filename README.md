@@ -18,22 +18,6 @@ We strongly recommend changing all passwords in the `.env.dist` file. These are 
 2. Open the `.env` file and update the relevant values.
 3. The `.env` file will be automatically loaded if it exists and will override the corresponding environment variables.
 
-# License Information for used containers
-
-| Container         | License                                | License Link                                                            |
-|-------------------|----------------------------------------|-------------------------------------------------------------------------|
-| **MongoDB**       | Server Side Public License (SSPL)      | [SSPL](https://www.mongodb.com/licensing/server-side-public-license)    |
-| **MariaDB**       | GPL v2                                 | [GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)        |
-| **MySQL**         | GPL v2 / Proprietary                   | [GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)        |
-| **Redis**         | BSD 3-Clause                           | [BSD 3-Clause](https://opensource.org/licenses/BSD-3-Clause)            |
-| **Elasticsearch** | Elastic License 2.0 (ELv2) / SSPL      | [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license) |
-| **PostgreSQL**    | PostgreSQL License                     | [PostgreSQL License](https://www.postgresql.org/about/licence/)         |
-| **pgAdmin**       | PostgreSQL License                     | [PostgreSQL License](https://www.pgadmin.org/licence.php)               |
-| **MinIO**         | Apache License 2.0                     | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)               |
-| **MSSQL**         | Proprietary (Microsoft EULA)           | [Microsoft EULA](https://www.microsoft.com/en-us/legal/terms-of-use)    |
-| **Oracle**        | Proprietary (Oracle EULA)              | [Oracle EULA](https://www.oracle.com/downloads/licenses/)               |
-
-
 ## Installation and Starting the Stack
 ### Prerequisites
 - Docker and Docker Compose must be installed on the system.
@@ -164,6 +148,22 @@ make restart
 - **Name:** mssql
 - **Volumes:**
    - ${MSSQL_DATA_PATH:-mssql-data}:/var/opt/mssql
+
+# License Information for used containers
+
+| Container         | License                                | License Link                                                            |
+|-------------------|----------------------------------------|-------------------------------------------------------------------------|
+| **MongoDB**       | Server Side Public License (SSPL)      | [SSPL](https://www.mongodb.com/licensing/server-side-public-license)    |
+| **MariaDB**       | GPL v2                                 | [GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)        |
+| **MySQL**         | GPL v2 / Proprietary                   | [GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)        |
+| **Redis**         | BSD 3-Clause                           | [BSD 3-Clause](https://opensource.org/licenses/BSD-3-Clause)            |
+| **Elasticsearch** | Elastic License 2.0 (ELv2) / SSPL      | [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license) |
+| **PostgreSQL**    | PostgreSQL License                     | [PostgreSQL License](https://www.postgresql.org/about/licence/)         |
+| **pgAdmin**       | PostgreSQL License                     | [PostgreSQL License](https://www.pgadmin.org/licence.php)               |
+| **MinIO**         | Apache License 2.0                     | [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)               |
+| **MSSQL**         | Proprietary (Microsoft EULA)           | [Microsoft EULA](https://www.microsoft.com/en-us/legal/terms-of-use)    |
+| **Oracle**        | Proprietary (Oracle EULA)              | [Oracle EULA](https://www.oracle.com/downloads/licenses/)               |
+| **Easy-Stack**    | GPL-3.0                                | [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)                    |
 
 
 ## This Stack is based on Easy Stack Mini
