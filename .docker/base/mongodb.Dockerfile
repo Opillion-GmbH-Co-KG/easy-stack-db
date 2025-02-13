@@ -1,4 +1,4 @@
-FROM mongo:6.0
+FROM mongo:latest
 
 #RUN apk add --no-cache bash
 
